@@ -1,28 +1,67 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header />
+    <AddTodo v-on:add-todo="addTodo"/>
+    <Todo :todos="todos" v-on:del-todo="deleteTodo"/>
+    
   </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script> 
+import Header from './components/layout/Header'
+import Todo from './components/Todo'
+import AddTodo from './components/AddTodo'
+import axios from 'axios'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
-  }
+    Todo,
+    Header,
+    AddTodo
+  },
+  data(){
+    return{
+      todos:[]
+    }
+  },
+  methods:{
+    deleteTodo(id){
+      axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`).then(res=>this.todos  = this.todos.filter(todos => todos.id!==id)).catch(err=>console.log(err));
+    },
+    addTodo(newTodo){
+      const {title,completed} = newTodo;
+      axios.post('https://jsonplaceholder.typicode.com/todos',{title,completed}).then(res=>this.todos = [...this.todos,res.data]).catch(err=>console.log(err));
+
+    }
+  },
+    created(){
+      axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10').then(res => this.todos = res.data).catch(err => console.log(err));
+    } 
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  *{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body{
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.4;
+  }
+  .btn{
+    display: inline-block;
+    border: none;
+    background: #555;
+    color: white;
+    padding: 7px 20px;
+    cursor: pointer;
+  }
+  .btn:hover{
+    background: #666;
+
+  }
+
 </style>
